@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ParkSmart — Bangalore</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Stylesheets: one file per area of the app -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/utilities.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/booking.css">
+  <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/bottomnav.css">
+  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="css/toast.css">
+</head>
+
+<body>
+  <div id="app">
+
+    <!-- THEME TOGGLE (floats above every screen) -->
+    <div style="position:absolute;top:10px;right:14px;z-index:150">
+      <div class="theme-btn" id="theme-btn" onclick="toggleThemeMenu(event)">🌓</div>
+      <div class="theme-menu" id="theme-menu">
+        <div class="theme-opt" data-val="light" onclick="setTheme('light')">☀️ Light</div>
+        <div class="theme-opt" data-val="dark" onclick="setTheme('dark')">🌙 Dark</div>
+        <div class="theme-opt" data-val="system" onclick="setTheme('system')">🖥 System Default</div>
+      </div>
+    </div>
+
+    <!-- SPLASH -->
+    <div class="screen" id="s-splash">
+      <div>
+        <div class="splash-icon">🅿</div>
+        <div class="splash-title">Park<span>Smart</span></div>
+        <div class="dots"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="screen hidden" id="s-login">
+      <div class="auth-art" id="auth-art-login">
+        <div class="auth-brand"><b>Park<span>Smart</span></b><small>BANGALORE · ML-POWERED</small></div>
+      </div>
+      <div class="auth-body">
+        <div class="auth-title fade">Welcome back 👋</div>
+        <div class="auth-sub fade">New here? <a href="#" onclick="show('s-signup')">Create an account</a></div>
+        <div class="field fade">
+          <label>Email</label>
+          <div class="field-wrap"><i>✉️</i><input type="email" id="login-email" placeholder="you@example.com"
+              value="arjun@email.com" style="padding-left:2.75rem"></div>
+        </div>
+        <div class="field fade">
+          <label>Password</label>
+          <div class="field-wrap"><i>🔒</i><input type="password" id="login-pass" placeholder="Enter password"
+              value="password123" style="padding-left:2.75rem"><span class="eye"
+              onclick="togglePass('login-pass',this)">👁</span></div>
+        </div>
+        <a href="#" class="forgot fade" onclick="show('s-otp')">Forgot password?</a>
+        <button class="btn fade" onclick="doLogin()">Sign In →</button>
+        <div class="divider fade">or continue with</div>
+        <div class="social-row fade">
+          <button onclick="doLogin()">🔵 Google</button>
+          <button onclick="doLogin()">📱 Phone OTP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div class="screen hidden" id="s-signup">
+      <div class="auth-art" style="height:130px">
+        <div class="auth-brand"><b>Park<span>Smart</span></b><small>CREATE YOUR ACCOUNT</small></div>
+      </div>
+      <div class="auth-body">
+        <div class="auth-title">Join ParkSmart 🚗</div>
+        <div class="auth-sub">Already have an account? <a href="#" onclick="show('s-login')">Sign in</a></div>
+        <div class="form-2col">
+          <div class="field"><label>First Name</label><input class="input" placeholder="Arjun" id="su-fname"></div>
+          <div class="field"><label>Last Name</label><input class="input" placeholder="Kumar" id="su-lname"></div>
+        </div>
+        <div class="field"><label>Email Address</label><input class="input" type="email" placeholder="you@example.com"
+            id="su-email"></div>
+        <div class="field"><label>Phone Number</label><input class="input" type="tel" placeholder="+91 98765 43210"
+            id="su-phone"></div>
+        <div class="field"><label>Vehicle Number</label><input class="input" placeholder="KA 01 AB 1234"
+            id="su-vehicle"></div>
+        <div class="field">
+          <label>Password</label>
+          <div class="field-wrap"><input class="input" type="password" placeholder="Min 8 characters" id="su-pass"><span
+              class="eye" onclick="togglePass('su-pass',this)">👁</span></div>
+        </div>
+        <button class="btn" onclick="doSignup()">Create Account →</button>
+      </div>
+    </div>
+
+    <!-- OTP -->
+    <div class="screen hidden" id="s-otp">
+      <div style="padding:1.5rem">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:2rem">
+          <div class="back-btn" onclick="show('s-login')">←</div>
+          <div style="font-size:1.1rem;font-weight:700">Verify OTP</div>
+        </div>
+        <div style="text-align:center;padding:1rem 0 2rem">
+          <div style="font-size:2.5rem;margin-bottom:1rem">📲</div>
+          <div style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem">Enter verification code</div>
+          <div class="muted" style="font-size:.83rem">Sent to <strong style="color:#00c896">+91 98765 43210</strong>
+          </div>
+        </div>
+        <div class="otp-row" id="otp-row"></div>
+        <button class="btn" onclick="doLogin()">Verify & Continue →</button>
+        <div class="muted" style="text-align:center;margin-top:1rem;font-size:.82rem">Resend code in <strong
+            style="color:#00c896">00:45</strong></div>
+      </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="screen hidden" id="s-app">
+      <div class="status-bar"><span class="status-time" id="status-time">9:41</span>
+        <div>📶 🔋</div>
+      </div>
+
+      <div style="flex:1;overflow:hidden;position:relative">
+
+        <!-- HOME -->
+        <div id="tab-home" class="scroll" style="position:absolute;inset:0">
+          <div style="padding:.5rem 0 1.25rem">
+            <div class="muted" style="font-size:.82rem">Good evening,</div>
+            <div class="greeting-name">Arjun <span id="user-displayname">Kumar</span> 👋</div>
+          </div>
+          <div class="search-bar"><span>🔍</span><input placeholder="Search locations in Bangalore..."><span
+              style="cursor:pointer" onclick="showTab('map')">🗺</span></div>
+
+          <div class="stats-strip fade" style="grid-template-columns:1fr 1fr">
+            <div class="mini-stat">
+              <div class="v" id="live-avail">847</div>
+              <div class="l">Slots available now</div>
+            </div>
+            <div class="mini-stat">
+              <div class="v">₹30</div>
+              <div class="l">Per hour flat</div>
+            </div>
+          </div>
+
+          <div class="pred-card fade">
+            <div class="row-between card-title" style="margin-bottom:.75rem"><span>🧠 ML Prediction</span><span
+                class="ai-badge">RANDOM FOREST</span></div>
+            <div class="row-between">
+              <div class="pred-status green" id="home-pred">Available</div>
+              <div class="pred-conf-bar">
+                <div class="pred-conf-fill" id="home-conf-fill" style="width:84%"></div>
+              </div>
+              <div class="pred-pct" id="home-conf-pct">84%</div>
+            </div>
+            <div class="pred-details">
+              <div class="pred-chip">🕐 <span id="pred-hr">6:00 PM</span></div>
+              <div class="pred-chip">📅 <span id="pred-dy">Saturday</span></div>
+              <div class="pred-chip">🚦 <select id="pred-traffic-home" onchange="updateHomePred()">
+                  <option value="low">Low traffic</option>
+                  <option value="medium" selected>Medium traffic</option>
+                  <option value="high">High traffic</option>
+                </select></div>
+              <div class="pred-chip">📍 Brigade Rd</div>
+            </div>
+          </div>
+
+          <div class="card fade" style="margin-bottom:1.5rem">
+            <div class="card-title">🔮 Live Prediction</div>
+            <div style="margin-bottom:.75rem"><label class="label">Traffic Level</label>
+              <select class="select" id="ml-traffic" onchange="mlPredict()">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="pill row-between">
+              <div>
+                <div class="muted" style="font-size:.75rem;margin-bottom:.25rem">Prediction</div>
+                <div class="pred-status green" style="font-size:1.3rem" id="ml-pred-val">Available</div>
+              </div>
+              <div style="text-align:right">
+                <div class="muted" style="font-size:.75rem;margin-bottom:.25rem">Confidence</div>
+                <div class="mono" style="font-size:1.3rem;font-weight:700;color:#00c896" id="ml-conf-val">84%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-hd fade">
+            <h2>📍 Nearby Zones</h2><a href="#" onclick="showTab('book')">Book now →</a>
+          </div>
+          <div class="loc-scroll fade" id="loc-scroll-home"></div>
+
+          <div class="section-hd fade">
+            <h2>⚡ Quick Reserve</h2>
+          </div>
+          <div class="card fade" style="margin-bottom:1.5rem">
+            <div style="display:flex;gap:.75rem;margin-bottom:.875rem">
+              <select class="select" id="qb-loc"></select>
+              <select class="select" id="qb-dur"></select>
+            </div>
+            <button class="btn" style="box-shadow:0 6px 20px rgba(0,200,150,.25)" onclick="quickBook()">Reserve Now
+              →</button>
+          </div>
+
+          <div class="section-hd fade">
+            <h2>📋 Recent Activity</h2><a href="#" onclick="showTab('mybookings')">See all →</a>
+          </div>
+          <div id="recent-list" class="fade"></div>
+        </div>
+
+        <!-- BOOK -->
+        <div id="tab-book" class="scroll" style="display:none;position:absolute;inset:0">
+          <div class="top-bar">
+            <div class="top-bar-title">Book a Slot</div>
+            <div class="notif-btn">🔔</div>
+          </div>
+          <div style="margin-bottom:1rem"><label class="label">Location</label><select class="select" id="book-loc-main"
+              onchange="loadSlotGrid()"></select></div>
+          <div class="grid2" style="margin-bottom:1rem">
+            <div><label class="label">Date</label><input class="input" type="date" id="book-date-main"></div>
+            <div><label class="label">Duration</label><select class="select" id="book-dur-main"></select></div>
+          </div>
+          <div style="margin-bottom:1rem"><label class="label">Start Time</label><select class="select"
+              id="book-time-main"></select></div>
+          <button class="btn" style="margin-bottom:1.25rem;box-shadow:0 6px 20px rgba(0,200,150,.25)"
+            onclick="loadSlotGrid()">🔍 Show Available Slots</button>
+
+          <div id="slot-section" style="display:none">
+            <div class="pill row-between"
+              style="margin-bottom:1rem;background:rgba(0,200,150,.06);border-color:rgba(0,200,150,.15)">
+              <div class="muted" id="slot-loc-label" style="font-size:.82rem">Brigade Road · 2 hours</div>
+              <div class="mono" style="font-size:1.1rem;font-weight:700;color:#00c896" id="slot-price-label">₹60</div>
+            </div>
+            <div class="legend-row">
+              <div class="leg"><i style="background:rgba(34,197,94,.5);border:1px solid #22c55e"></i>Available</div>
+              <div class="leg"><i style="background:rgba(239,68,68,.3)"></i>Occupied</div>
+              <div class="leg"><i style="background:rgba(245,158,11,.4)"></i>Reserved</div>
+              <div class="leg"><i style="background:rgba(14,165,233,.5);border:1px solid #0ea5e9"></i>Selected</div>
+            </div>
+            <div id="slot-zones-main"></div>
+            <div id="slot-proceed-bar" style="display:none" class="slot-selected-bar row-between">
+              <div>
+                <div class="muted" style="font-size:.82rem">Selected Slot</div>
+                <div style="font-size:1.1rem;font-weight:700;color:#00c896" id="ssb-slot-name">A3</div>
+              </div>
+              <button class="btn-sm" onclick="openBookModal()">Book This Slot →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MY BOOKINGS -->
+        <div id="tab-mybookings" class="scroll" style="display:none;position:absolute;inset:0">
+          <div class="top-bar">
+            <div class="top-bar-title">My Bookings</div>
+            <div class="notif-btn">🔔</div>
+          </div>
+          <div id="my-bookings-list"></div>
+        </div>
+
+        <!-- PROFILE -->
+        <div id="tab-profile" class="scroll" style="display:none;position:absolute;inset:0">
+          <div class="top-bar">
+            <div class="top-bar-title">My Profile</div>
+          </div>
+          <div class="profile-hero">
+            <div class="profile-avatar" id="profile-av">AK</div>
+            <div>
+              <div style="font-size:1.1rem;font-weight:700" id="profile-name-disp">Arjun Kumar</div>
+              <div class="muted" style="font-size:.78rem;margin-top:.2rem" id="profile-email-disp">arjun@email.com</div>
+              <div style="font-size:.72rem;color:rgba(0,200,150,.7);margin-top:.25rem">Member since April 2024</div>
+            </div>
+          </div>
+          <div style="margin-bottom:1.25rem">
+            <div class="profile-section-title">Account</div>
+            <div class="profile-item">
+              <div class="pi-icon bg-green">🚗</div>
+              <div style="flex:1">
+                <div class="pi-label">Vehicle</div>
+                <div class="pi-sub" id="profile-vehicle">KA 01 AB 1234</div>
+              </div><span class="muted">›</span>
+            </div>
+            <div class="profile-item">
+              <div class="pi-icon bg-blue">💳</div>
+              <div style="flex:1">
+                <div class="pi-label">Payment Methods</div>
+                <div class="pi-sub">Visa ••4242</div>
+              </div><span class="muted">›</span>
+            </div>
+            <div class="profile-item">
+              <div class="pi-icon bg-amber">🔔</div>
+              <div style="flex:1">
+                <div class="pi-label">Notifications</div>
+                <div class="pi-sub">Booking alerts, offers</div>
+              </div><span class="muted">›</span>
+            </div>
+          </div>
+          <div style="margin-bottom:1.25rem">
+            <div class="profile-section-title">Stats</div>
+            <div class="grid2">
+              <div class="mini-stat">
+                <div class="v" id="profile-total-bookings">3</div>
+                <div class="l">Total Bookings</div>
+              </div>
+              <div class="mini-stat">
+                <div class="v" id="profile-total-spent">₹210</div>
+                <div class="l">Total Spent</div>
+              </div>
+              <div class="mini-stat">
+                <div class="v">0</div>
+                <div class="l">Penalties</div>
+              </div>
+              <div class="mini-stat">
+                <div class="v">⭐ 4.8</div>
+                <div class="l">Rating</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="profile-section-title">Support</div>
+            <div class="profile-item">
+              <div class="pi-icon bg-blue">❓</div>
+              <div style="flex:1">
+                <div class="pi-label">Help & FAQ</div>
+              </div><span class="muted">›</span>
+            </div>
+            <div class="profile-item">
+              <div class="pi-icon bg-amber">📜</div>
+              <div style="flex:1">
+                <div class="pi-label">Terms & Privacy</div>
+              </div><span class="muted">›</span>
+            </div>
+            <div class="profile-item" onclick="doLogout()">
+              <div class="pi-icon" style="background:rgba(239,68,68,.1)">🚪</div>
+              <div style="flex:1">
+                <div class="pi-label" style="color:#f87171">Sign Out</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bottom-nav" id="bottom-nav"></div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="screen hidden" id="s-success">
+      <div class="status-bar"><span>9:41</span>
+        <div>📶 🔋</div>
+      </div>
+      <div
+        style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center">
+        <div class="success-anim">✅</div>
+        <div style="font-size:1.4rem;font-weight:800;margin-bottom:.4rem">Booking Confirmed!</div>
+        <div class="mono" style="font-size:1.4rem;font-weight:700;color:#00c896;margin:.5rem 0" id="success-id">PS123456
+        </div>
+        <div class="muted" style="font-size:.85rem;margin-top:.4rem" id="success-sub">Slot A3 · Brigade Road</div>
+        <div class="card" style="margin:1.5rem 0;text-align:left">
+          <div class="detail-row"><span>Location</span><span id="sd-loc">Brigade Road</span></div>
+          <div class="detail-row"><span>Slot</span><span id="sd-slot">A3</span></div>
+          <div class="detail-row"><span>Date</span><span id="sd-date">—</span></div>
+          <div class="detail-row"><span>Duration</span><span id="sd-dur">2 hrs</span></div>
+          <div class="detail-row"><span>Paid</span><span style="color:#00c896" id="sd-paid">₹60</span></div>
+        </div>
+        <div class="warn-box" style="width:100%;margin-bottom:1.5rem">⚠ Arrive within 30 minutes to avoid a 20% no-show
+          penalty.</div>
+        <button class="btn" onclick="backToApp()">Back to Home →</button>
+      </div>
+    </div>
+
+    <!-- BOOKING MODAL -->
+    <div class="modal-overlay" id="modal-book">
+      <div class="modal-sheet">
+        <div class="modal-title">Booking Summary</div>
+        <div id="modal-book-content"></div>
+      </div>
+    </div>
+
+    <!-- PAYMENT MODAL -->
+    <div class="modal-overlay" id="modal-pay">
+      <div class="modal-sheet">
+        <div class="modal-title">Secure Payment</div>
+        <div class="pay-amt">
+          <div class="muted" style="font-size:.8rem;margin-bottom:.3rem">ParkSmart Bangalore · Slot <span
+              id="pay-slot-name">A3</span></div>
+          <div class="n"><span>₹</span><span id="pay-amount">60</span></div>
+        </div>
+        <div style="margin-bottom:.875rem">
+          <div class="label" style="margin-bottom:.5rem">Pay via UPI</div>
+          <div class="upi-row"><button onclick="fastPay()">GPay</button><button
+              onclick="fastPay()">PhonePe</button><button onclick="fastPay()">Paytm</button><button
+              onclick="fastPay()">UPI ID</button></div>
+        </div>
+        <div class="divider" style="font-size:.75rem">or pay by card</div>
+        <div class="field"><label>Cardholder Name</label><input class="input" id="pay-name" value="Arjun Kumar"></div>
+        <div class="field"><label>Card Number</label><input class="input" id="pay-card" value="4242 4242 4242 4242"
+            maxlength="19"></div>
+        <div class="grid2">
+          <div class="field"><label>Expiry</label><input class="input" value="08/27"></div>
+          <div class="field"><label>CVV</label><input class="input" value="123" maxlength="3"></div>
+        </div>
+        <div class="secure-note">🔒 Secured by Razorpay · PCI-DSS Compliant</div>
+        <div class="modal-btns">
+          <button class="btn-outline" onclick="closePayModal()">Cancel</button>
+          <button class="btn" style="flex:2" onclick="processPayment()">Pay ₹<span id="pay-btn-amt">60</span> →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">
+      <div class="t" id="toast-t"></div>
+      <div class="m" id="toast-m"></div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <!-- Scripts: one file per feature, loaded in dependency order -->
+  <script src="js/data.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/booking.js"></script>
+  <script src="js/mybookings.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
