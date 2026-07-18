@@ -68,6 +68,8 @@ async def login(user: UserLogin):
                 status_code=401,
                 detail="Invalid Email or Password"
             )
+            print("Role from DB:", repr(existing_user["role"]))
+
 
         access_token = create_access_token(
             {
