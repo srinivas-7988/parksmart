@@ -1,0 +1,24 @@
+# Python virtual environments and cache
+backend/venv/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+backend/.env
+.env
+.env.local
+.env.*.local
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

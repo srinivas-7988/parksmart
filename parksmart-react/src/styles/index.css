@@ -1,0 +1,11 @@
+/* Imported in the exact same order as the original index.html <link> tags */
+@import './theme.css';
+@import './utilities.css';
+@import './topbar.css';
+@import './auth.css';
+@import './home.css';
+@import './booking.css';
+@import './modals.css';
+@import './bottomnav.css';
+@import './profile.css';
+@import './toast.css';
