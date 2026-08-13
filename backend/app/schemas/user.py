@@ -1,5 +1,8 @@
 from pydantic import BaseModel, EmailStr
+<<<<<<< HEAD
 from typing import Optional
+=======
+>>>>>>> af762a01ed01c9f51f1c366ed206d70b2181534f
 
 
 class UserCreate(BaseModel):
@@ -7,11 +10,15 @@ class UserCreate(BaseModel):
     email: EmailStr
     phone: str
     password: str
+<<<<<<< HEAD
     vehicle_number: Optional[str] = None
+=======
+>>>>>>> af762a01ed01c9f51f1c366ed206d70b2181534f
 
 
 class UserLogin(BaseModel):
     email: EmailStr
+<<<<<<< HEAD
     password: str
 
 
@@ -28,3 +35,6 @@ class ResetPasswordRequest(BaseModel):
     email: EmailStr
     otp: str
     new_password: str
+=======
+    password: str
+>>>>>>> af762a01ed01c9f51f1c366ed206d70b2181534f

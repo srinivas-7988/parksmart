@@ -9,11 +9,18 @@ import os
 from app.database.database import db
 from app.auth.auth_bearer import JWTBearer
 from app.auth.admin_bearer import AdminBearer
+<<<<<<< HEAD
 from app.services.email_service import send_email
+=======
+>>>>>>> af762a01ed01c9f51f1c366ed206d70b2181534f
 
 router = APIRouter()
 
 QR_FOLDER = "qrcodes"
+<<<<<<< HEAD
+=======
+
+>>>>>>> af762a01ed01c9f51f1c366ed206d70b2181534f
 os.makedirs(QR_FOLDER, exist_ok=True)
 
 
@@ -83,6 +90,7 @@ async def generate_qr(
             }
         )
 
+<<<<<<< HEAD
     # ==========================================
     # SEND QR EMAIL
     # ==========================================
@@ -120,6 +128,8 @@ Thank you for choosing ParkSmart.
         attachment=filepath
     )
 
+=======
+>>>>>>> af762a01ed01c9f51f1c366ed206d70b2181534f
     return {
         "message": "QR Code Generated",
         "file": filename
