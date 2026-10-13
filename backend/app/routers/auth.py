@@ -126,47 +126,60 @@ Happy Parking!
 
 @router.post("/login")
 async def login(user: UserLogin):
+    try:
+        existing_user = await db.users.find_one({
+            "email": user.email
+        })
 
-    existing_user = await db.users.find_one({
-        "email": user.email
-    })
+        if not existing_user:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid Email or Password"
+            )
 
-    if not existing_user:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid Email or Password"
-        )
+        if not verify_password(
+            user.password,
+            existing_user["password"]
+        ):
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid Email or Password"
+            )
 
-    if not verify_password(
-        user.password,
-        existing_user["password"]
-    ):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid Email or Password"
-        )
-
-    access_token = create_access_token({
-        "email": existing_user["email"],
-        "role": existing_user["role"]
-    })
-
-    # Look up registered vehicle for this user
-    user_vehicle = await db.vehicles.find_one({"user_email": existing_user["email"]})
-    v_num = user_vehicle.get("vehicle_number") if user_vehicle else existing_user.get("vehicle_number", "")
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": {
-            "full_name": existing_user["full_name"],
+        access_token = create_access_token({
             "email": existing_user["email"],
-            "phone": existing_user["phone"],
-            "role": existing_user["role"],
-            "vehicle": v_num,
-            "vehicle_number": v_num
+            "role": existing_user.get("role", "user")
+        })
+
+        # Look up registered vehicle for this user
+        v_num = existing_user.get("vehicle_number", "")
+        try:
+            user_vehicle = await db.vehicles.find_one({"user_email": existing_user["email"]})
+            if user_vehicle and user_vehicle.get("vehicle_number"):
+                v_num = user_vehicle.get("vehicle_number")
+        except Exception:
+            pass
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "full_name": existing_user.get("full_name", "User"),
+                "email": existing_user["email"],
+                "phone": existing_user.get("phone", ""),
+                "role": existing_user.get("role", "user"),
+                "vehicle": v_num,
+                "vehicle_number": v_num
+            }
         }
-    }
+    except HTTPException:
+        raise
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Login failed: {str(e)}"
+        )
 
 
 # ===========================
