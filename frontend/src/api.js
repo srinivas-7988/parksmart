@@ -1,7 +1,22 @@
-const API_BASE_URL =
-    (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE_URL)
-        ? import.meta.env.VITE_API_BASE_URL
-        : "http://127.0.0.1:8000/api"
+export function getApiBaseUrl() {
+    if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE_URL) {
+        return import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, "")
+    }
+
+    if (typeof window !== "undefined") {
+        const hostname = window.location.hostname
+        if (hostname === "localhost" || hostname === "127.0.0.1") {
+            return `http://${hostname}:8000/api`
+        }
+        if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+            return `http://${hostname}:8000/api`
+        }
+    }
+
+    return "http://127.0.0.1:8000/api"
+}
+
+const API_BASE_URL = getApiBaseUrl()
 
 
 /*
@@ -23,13 +38,21 @@ async function request(endpoint, options = {}) {
         headers.Authorization = `Bearer ${token}`
     }
 
-    const response = await fetch(
-        `${API_BASE_URL}${endpoint}`,
-        {
-            ...options,
-            headers,
-        }
-    )
+    let response
+    try {
+        response = await fetch(
+            `${API_BASE_URL}${endpoint}`,
+            {
+                ...options,
+                headers,
+            }
+        )
+    } catch (err) {
+        console.error(`[API Network Error] Failed connecting to ${API_BASE_URL}${endpoint}:`, err)
+        throw new Error(
+            `Unable to connect to server at ${API_BASE_URL}. Please ensure the backend is running.`
+        )
+    }
 
     let data = {}
 
