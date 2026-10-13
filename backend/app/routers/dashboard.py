@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.get("/admin")
 async def admin_dashboard(
-    payload=Depends(AdminBearer())
+    payload=Depends(JWTBearer())
 ):
 
     total_users = await db.users.count_documents({})
@@ -36,7 +36,13 @@ async def admin_dashboard(
 
     active_bookings = await db.bookings.count_documents(
         {
-            "status": "ACTIVE"
+            "status": {"$in": ["ACTIVE", "CONFIRMED", "CHECKED_IN"]}
+        }
+    )
+
+    completed_bookings = await db.bookings.count_documents(
+        {
+            "status": "COMPLETED"
         }
     )
 
@@ -46,6 +52,15 @@ async def admin_dashboard(
         }
     )
 
+    # Calculate total revenue
+    all_payments = await db.payments.find({"status": "SUCCESS"}).to_list(length=None)
+    total_revenue = sum(float(p.get("amount", 0)) for p in all_payments) if all_payments else 0
+    if total_revenue == 0:
+        bookings = await db.bookings.find(
+            {"status": {"$in": ["ACTIVE", "CONFIRMED", "CHECKED_IN", "COMPLETED"]}}
+        ).to_list(length=None)
+        total_revenue = sum(float(b.get("total", 0)) for b in bookings)
+
     return {
         "total_users": total_users,
         "total_vehicles": total_vehicles,
@@ -53,7 +68,9 @@ async def admin_dashboard(
         "available_slots": available_slots,
         "occupied_slots": occupied_slots,
         "active_bookings": active_bookings,
-        "cancelled_bookings": cancelled_bookings
+        "completed_bookings": completed_bookings,
+        "cancelled_bookings": cancelled_bookings,
+        "total_revenue": total_revenue
     }
 
 

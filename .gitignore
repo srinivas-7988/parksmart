@@ -8,9 +8,20 @@ __pycache__/
 
 # Environment variables
 backend/.env
+frontend/.env
 .env
 .env.local
 .env.*.local
+
+# Node / Frontend
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+*.log
+
+# QR codes runtime files
+backend/qrcodes/*.png
 
 # IDEs and OS files
 .vscode/

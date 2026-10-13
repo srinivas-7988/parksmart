@@ -1,0 +1,187 @@
+/* ── MODALS ── */
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .7);
+    backdrop-filter: blur(6px);
+    z-index: 90;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    pointer-events: all
+}
+
+.modal-sheet {
+    background: var(--sheet-bg);
+    border-radius: 24px 24px 0 0;
+    padding: 1.5rem;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    transform: translateY(60px);
+    transition: transform .3s
+}
+
+.modal-overlay.open .modal-sheet {
+    transform: translateY(0)
+}
+
+.modal-sheet:before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: rgba(var(--fgc), .15);
+    border-radius: 2px;
+    margin: 0 auto 1.25rem
+}
+
+.modal-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .625rem 0;
+    border-bottom: 1px solid rgba(var(--fgc), .05)
+}
+
+.detail-row:last-child {
+    border-bottom: none
+}
+
+.detail-row span:first-child {
+    font-size: .83rem;
+    color: rgba(var(--fgc), .45)
+}
+
+.detail-row span:last-child {
+    font-size: .88rem;
+    font-weight: 600
+}
+
+.total-box {
+    background: rgba(0, 200, 150, .07);
+    border: 1px solid rgba(0, 200, 150, .18);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0
+}
+
+.total-box b {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #00c896;
+    font-family: 'JetBrains Mono', monospace
+}
+
+.warn-box {
+    background: rgba(245, 158, 11, .06);
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    padding: .75rem;
+    font-size: .75rem;
+    color: rgba(var(--fgc), .5);
+    line-height: 1.5;
+    margin-bottom: 1rem
+}
+
+.modal-btns {
+    display: flex;
+    gap: .75rem
+}
+
+.pay-amt {
+    text-align: center;
+    padding: 1rem 0 1.5rem
+}
+
+.pay-amt .n {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace
+}
+
+.pay-amt .n span {
+    font-size: 1.2rem;
+    color: #00c896
+}
+
+.upi-row {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1rem
+}
+
+.upi-row button {
+    flex: 1;
+    padding: .65rem;
+    background: rgba(var(--fgc), .04);
+    border: 1px solid rgba(var(--fgc), .08);
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: .75rem;
+    color: rgba(var(--fgc), .5);
+    cursor: pointer
+}
+
+.secure-note {
+    text-align: center;
+    font-size: .72rem;
+    color: rgba(var(--fgc), .25);
+    margin: .75rem 0
+}
+
+.success-anim {
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(135deg, rgba(0, 200, 150, .15), rgba(14, 165, 233, .1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2.5rem
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE MODALS
+   Mobile + Laptop
+───────────────────────────────────────── */
+
+@media (min-width: 768px) {
+
+    .modal-overlay {
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .modal-sheet {
+        width: 100%;
+        max-width: 550px;
+        max-height: 85vh;
+        border-radius: 24px;
+        padding: 2rem;
+        transform: translateY(30px);
+    }
+
+    .modal-overlay.open .modal-sheet {
+        transform: translateY(0);
+    }
+
+}

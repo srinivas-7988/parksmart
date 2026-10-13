@@ -4,10 +4,13 @@ from datetime import datetime
 from app.database.database import db
 from app.schemas.vehicle import VehicleCreate, VehicleUpdate
 from app.auth.auth_bearer import JWTBearer
-from app.schemas.parking import ParkingSlotCreate, ParkingSlotUpdate
 
 router = APIRouter()
 
+
+# =========================
+# ADD VEHICLE
+# =========================
 
 @router.post("/")
 async def add_vehicle(
@@ -17,11 +20,11 @@ async def add_vehicle(
 
     user_email = payload["email"]
 
-    existing_vehicle = await db.vehicles.find_one(
-        {"vehicle_number": vehicle.vehicle_number.upper()}
-    )
+    existing = await db.vehicles.find_one({
+        "vehicle_number": vehicle.vehicle_number.upper()
+    })
 
-    if existing_vehicle:
+    if existing:
         raise HTTPException(
             status_code=400,
             detail="Vehicle already exists."
@@ -43,36 +46,61 @@ async def add_vehicle(
         "message": "Vehicle added successfully",
         "vehicle_id": str(result.inserted_id)
     }
-    # ===========================
+
+
+# =========================
 # GET MY VEHICLES
-# ===========================
+# =========================
 
 @router.get("/")
 async def get_my_vehicles(
     payload=Depends(JWTBearer())
 ):
-    try:
 
-        user_email = payload["email"]
+    user_email = payload["email"]
 
-        vehicles = await db.vehicles.find(
-            {"user_email": user_email},
-            {"_id": 0}
-        ).to_list(length=None)
+    vehicles = await db.vehicles.find(
+        {"user_email": user_email},
+        {"_id": 0}
+    ).to_list(length=None)
 
-        return {
-            "total": len(vehicles),
-            "vehicles": vehicles
-        }
+    # Auto-sync fallback: If user registered with vehicle during signup, ensure it's in vehicles collection
+    if not vehicles:
+        user = await db.users.find_one({"email": user_email})
+        if user and user.get("vehicle_number"):
+            v_num = user["vehicle_number"].strip().upper()
+            auto_v = {
+                "user_email": user_email,
+                "vehicle_number": v_num,
+                "vehicle_type": "CAR",
+                "brand": "Standard",
+                "model": "Car",
+                "color": "Default",
+                "created_at": datetime.utcnow()
+            }
+            await db.vehicles.update_one(
+                {"vehicle_number": v_num},
+                {"$set": auto_v},
+                upsert=True
+            )
+            vehicles = [{
+                "user_email": user_email,
+                "vehicle_number": v_num,
+                "vehicle_type": "CAR",
+                "brand": "Standard",
+                "model": "Car",
+                "color": "Default"
+            }]
 
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
-        # ===========================
+    return {
+        "total": len(vehicles),
+        "vehicles": vehicles
+    }
+
+
+# =========================
 # UPDATE VEHICLE
-# ===========================
+# =========================
 
 @router.put("/{vehicle_number}")
 async def update_vehicle(
@@ -80,26 +108,28 @@ async def update_vehicle(
     vehicle: VehicleUpdate,
     payload=Depends(JWTBearer())
 ):
+
     user_email = payload["email"]
 
-    existing_vehicle = await db.vehicles.find_one({
+    existing = await db.vehicles.find_one({
         "vehicle_number": vehicle_number.upper(),
         "user_email": user_email
     })
 
-    if not existing_vehicle:
+    if not existing:
         raise HTTPException(
             status_code=404,
             detail="Vehicle not found."
         )
 
-    update_data = {
-        key: value
-        for key, value in vehicle.dict(exclude_unset=True).items()
-    }
+    update_data = vehicle.model_dump(
+        exclude_unset=True
+    )
 
     if "vehicle_number" in update_data:
-        update_data["vehicle_number"] = update_data["vehicle_number"].upper()
+        update_data["vehicle_number"] = (
+            update_data["vehicle_number"].upper()
+        )
 
     await db.vehicles.update_one(
         {
@@ -114,9 +144,11 @@ async def update_vehicle(
     return {
         "message": "Vehicle updated successfully"
     }
-    # ===========================
+
+
+# =========================
 # DELETE VEHICLE
-# ===========================
+# =========================
 
 @router.delete("/{vehicle_number}")
 async def delete_vehicle(
@@ -144,42 +176,4 @@ async def delete_vehicle(
 
     return {
         "message": "Vehicle deleted successfully"
-    }
-    # ===========================
-# UPDATE PARKING SLOT
-# ===========================
-
-@router.put("/{slot_number}")
-async def update_parking_slot(
-    slot_number: str,
-    slot: ParkingSlotUpdate
-):
-
-    existing_slot = await db.parking_slots.find_one(
-        {
-            "slot_number": slot_number.upper()
-        }
-    )
-
-    if not existing_slot:
-        raise HTTPException(
-            status_code=404,
-            detail="Parking slot not found."
-        )
-
-    update_data = {
-        key: value
-        for key, value in slot.model_dump(exclude_unset=True).items()
-    }
-
-    if "section" in update_data:
-        update_data["section"] = update_data["section"].upper()
-
-    await db.parking_slots.update_one(
-        {"slot_number": slot_number.upper()},
-        {"$set": update_data}
-    )
-
-    return {
-        "message": "Parking slot updated successfully"
     }

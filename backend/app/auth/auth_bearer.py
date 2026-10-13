@@ -12,37 +12,34 @@ ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 
 class JWTBearer(HTTPBearer):
+    def __init__(self, auto_error: bool = True):
+        super().__init__(auto_error=False)
 
     async def __call__(self, request: Request):
-        credentials: HTTPAuthorizationCredentials = await super().__call__(request)
+        token = None
 
-        if credentials is None:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:].strip()
+        elif "token" in request.query_params:
+            token = request.query_params["token"]
+
+        if not token:
             raise HTTPException(
                 status_code=403,
                 detail="No token provided"
             )
 
-        print("===================================")
-        print("TOKEN RECEIVED:")
-        print(credentials.credentials)
-        print("===================================")
-
         try:
             payload = jwt.decode(
-                credentials.credentials,
+                token,
                 SECRET_KEY,
                 algorithms=[ALGORITHM]
             )
-
-            print("TOKEN VERIFIED")
-            print(payload)
-
             return payload
 
         except Exception as e:
             traceback.print_exc()
-            print("JWT ERROR:", e)
-
             raise HTTPException(
                 status_code=403,
                 detail=str(e)
